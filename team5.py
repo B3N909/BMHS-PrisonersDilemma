@@ -8,7 +8,7 @@
 
 print ("Starting...")
 
-team_name = 'Team 5' # Only 10 chars displayed.
+team_name = 'Team 5 Ben & Dylan' # Only 10 chars displayed.
 strategy_name = 'Our Strategy'
 strategy_description = 'How does this strategy decide?'
 
