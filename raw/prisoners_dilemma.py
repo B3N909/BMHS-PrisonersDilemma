@@ -31,15 +31,15 @@ from __future__ import print_function
 # section0, section1, section2, section3 = reports
 #######
 import random
+from imp import *
 import os.path              
-from imp import reload
-import example0, example1
-import example5, example6, example2
-import team5
+    
+import example0, example1, example2, example3
+import example4, example5, example6, example7
 betray = example1
 collude = example0
 
-modules = [example5, example6, example2, team5]
+modules = [example0, example1, example2, example3, example4, example5, example6, example7]
 for module in modules:
     reload(module)
     print ('reloaded',module)
@@ -120,7 +120,7 @@ def play_round(player1, player2, score1, score2, moves1, moves2):
     Returns a 2-tuple with score1 and score2 incremented by this round
     '''
     
-    RELEASE = 650 # (R, "reward" in literature) when both players collude
+    RELEASE = 0 # (R, "reward" in literature) when both players collude
     TREAT = 100 # (T, "temptation" in literature) when you betray your partner
     SEVERE_PUNISHMENT = -500 # (S, "sucker" in literature) when your partner betrays you
     PUNISHMENT = -250 # (P) when both players betray each other
@@ -266,7 +266,7 @@ def make_section2(modules, scores):
                               'P'+str(index),
                               str(sum(scores[index])/len(modules)),
                               str(modules[index].strategy_name)))
-    section2_list.sort(key=lambda x: int(x[2]), reverse=True)
+    section2_list.sort(key=lambda x: float(x[2]), reverse=True)
     
     # Generate one string per team
     # Rockettes (P1):  -500 points with Backstabber
