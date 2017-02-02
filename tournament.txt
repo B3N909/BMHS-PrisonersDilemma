@@ -16,20 +16,20 @@ Section 1 - Player vs. Player
 --------------------------------------------------------------------------------
 Each column shows pts/round earned against each other player:
              P0     P1     P2     P3
-vs. P0 :      0    511    215    436
-vs. P1 :    516      0    594    650
-vs. P2 :    212    588      0    604
-vs. P3 :    441    650    610      0
-TOTAL  :   1169   1749   1419   1690
+vs. P0 :      0    210    269   -204
+vs. P1 :    213      0    297    650
+vs. P2 :    265    293      0    479
+vs. P3 :   -204    650    499      0
+TOTAL  :    274   1153   1065    925
 --------------------------------------------------------------------------------
 Section 2 - Leaderboard
 --------------------------------------------------------------------------------
 Average points per round:
 Team name (P#):  Score      with strategy name
-E6        (P1):        437 points with Collude until betrayed                  
-Team 5 Ben(P3):        422 points with Our Strategy                            
-ugh       (P2):        354 points with Good for a while.                       
-E5        (P0):        292 points with Collude first 100 rounds unless betrayed
+E6        (P1):        288 points with Collude until betrayed                  
+ugh       (P2):        266 points with Good for a while.                       
+Team 5 Ben(P3):        231 points with Our Strategy                            
+E5        (P0):         68 points with Collude first 100 rounds unless betrayed
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 example5--------------------------------------------------------------------------------
@@ -170,6 +170,8 @@ team5---------------------------------------------------------------------------
 #     move: A function that returns 'c' or 'b'
 ####
 
+import random
+
 print ("Starting...")
 
 team_name = 'Team 5 Ben & Dylan' # Only 10 chars displayed.
@@ -187,6 +189,13 @@ weightAlternate = 0
 
 iterationOpposite = 0
 weightOpposite = 0
+
+iterationAlwaysBetray = 0
+weightAlwaysBetray = 0
+
+iterationBetrayAfter = 0
+iterationBetrayAfterStart = 0
+weightBettrayAfter = 0
 
 def lastMove(history):
     return history[-1:]
@@ -213,29 +222,62 @@ def move(my_history, their_history, my_score, their_score):
     global iterationOpposite
     global weightOpposite
     
+    global iterationAlwaysBetray
+    global weightAlwaysBetray
+    
+    global iterationBetrayAfter
+    global iterationBetrayAfterStart
+    global weightBettrayAfter
+    
     if(their_history != ""):
         # Opposite
         if(theirLast == opposite(myLast)):
             iterationOpposite += 1.0
-        weightOpposite = int((iterationOpposite / iterations) * 100);
+        weightOpposite = int((iterationOpposite / iterations) * 100)
                 
         #Always Collude
         if(theirLast == "c"):
             iterationAlwaysCollude += 1.0
-        weightAlwaysCollude = int((iterationAlwaysCollude / iterations) * 100);
+        weightAlwaysCollude = int((iterationAlwaysCollude / iterations) * 100)
+        
+        #AlwaysBetray
+        if(theirLast == "b"):
+            iterationAlwaysBetray += 1.0
+        weightAlwaysBetray = int((iterationAlwaysBetray / iterations) * 100)
         
         #Alternate
         if(their_history[len(their_history) - 2] == opposite(theirLast)):
             iterationAlternate += 1.0
-        weightAlternate = int((iterationAlternate / iterations) * 100);
+        weightAlternate = int((iterationAlternate / iterations) * 100)
         
-        print my_history + " | " + their_history + " - " + str(weightOpposite) + " - " + str(weightAlternate) + "% (" + str(iterations) + ")"
+        #Betray After Point
+        if(theirLast == "b"):
+            if(iterationBetrayAfterStart != 0):
+                iterationBetrayAfterStart = len(theirHistroy)
+            iterationBetrayAfter += 1.0
+        weightBettrayAfter = int((iterationBetrayAfter / iterations) * 100)
         
-        if(weightAlternate > weightAlwaysCollude & weightAlternate >= weightOpposite):
-            print ("Always Alternating")
-            return "c"
+        
+        print my_history + " | " + their_history + " - " + str(weightBettrayAfter) + "% (" + str(iterationBetrayAfter) + ")"
+        
+        pick = random.randint(1, 100)
+        
+        if( weightBettrayAfter > 2):
+            return "b"
         else:
-            return theirLast
+            if(random.randint(1, 100) < 2):
+                return "b"
+            else:
+                if( pick < weightAlternate ):
+                    return "c"
+                elif( pick < weightAlwaysCollude ):
+                    return "c"
+                elif( pick < weightAlwaysBetray ):
+                    return "b"
+                elif( pick < weightOpposite ):
+                    return opposite(myLast)
+                else:
+                    return theirLast
         
     else:
         #Reset Variables
@@ -248,71 +290,90 @@ def move(my_history, their_history, my_score, their_score):
         iterationOpposite = 0
         weightOpposite = 0
         
-        return start
+        iterationAlwaysBetray = 0
+        weightAlwaysBetray = 0
+        
+        iterationBetrayAfter = 0
+        iterationBetrayAfterStart = 0
+        weightBettrayAfter = 0
+        
+        return "c"
     
 
-myHistory = "cbbbbbbbbb"
-theirHistroy = "cbcbcbcbcb"
+myHistory = "cccccccc"
+theirHistroy = "bcccbccc"
 
 sendMy = ""
 sendTheir = ""
 
-for i in range(0, 9):
+for i in range(0, 7):
     sendMy += myHistory[i]
     sendTheir += theirHistroy[i]
-    #move(sendMy, sendTheir, 0, 0)
+    move(sendMy, sendTheir, 0, 0)
 --------------------------------------------------------------------------------
 Section 3 - Game Data for Team E5
 --------------------------------------------------------------------------------
-516 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
-511 pt/round: E6(P1) "Collude until betrayed"
+213 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+210 pt/round: E6(P1) "Collude until betrayed"
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbb
-CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
-212 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
-215 pt/round: ugh(P2) "Good for a while."
+265 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+269 pt/round: ugh(P2) "Good for a while."
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 CCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb
+bbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
-441 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
-436 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+-204 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-204 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
+CCCCCCCCCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 Section 3 - Game Data for Team E6
 --------------------------------------------------------------------------------
-511 pt/round: E6(P1) "Collude until betrayed"
-516 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+210 pt/round: E6(P1) "Collude until betrayed"
+213 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbb
-CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
-588 pt/round: E6(P1) "Collude until betrayed"
-594 pt/round: ugh(P2) "Good for a while."
+293 pt/round: E6(P1) "Collude until betrayed"
+297 pt/round: ugh(P2) "Good for a while."
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCcbbbbbb
-CCCCCCCCCCCCCCCCCCCCBbbbbbb
+CCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbb
+bbbbb
 
 --------------------------------------------------------------------------------
 650 pt/round: E6(P1) "Collude until betrayed"
@@ -320,56 +381,59 @@ CCCCCCCCCCCCCCCCCCCCBbbbbbb
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 Section 3 - Game Data for Team ugh
 --------------------------------------------------------------------------------
-215 pt/round: ugh(P2) "Good for a while."
-212 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+269 pt/round: ugh(P2) "Good for a while."
+265 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 CCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbb
+bbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
-594 pt/round: ugh(P2) "Good for a while."
-588 pt/round: E6(P1) "Collude until betrayed"
+297 pt/round: ugh(P2) "Good for a while."
+293 pt/round: E6(P1) "Collude until betrayed"
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCBbbbbbb
-CCCCCCCCCCCCCCCCCCCCcbbbbbb
+CCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbb
+bbbbb
 
 --------------------------------------------------------------------------------
-610 pt/round: ugh(P2) "Good for a while."
-604 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
+499 pt/round: ugh(P2) "Good for a while."
+479 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCBbbbb
-CCCCCCCCCCCCCCCCCCCCcbbbb
+CCCCCCCCCCCCCCCCCCCCBBBBbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCccccbbbbbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 Section 3 - Game Data for Team Team 5 Ben & Dylan
 --------------------------------------------------------------------------------
-436 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
-441 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+-204 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
+-204 pt/round: E5(P0) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-CCCCCCCCCCCCCCCCCCCCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------
 650 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
@@ -377,19 +441,16 @@ CCCCCCCCCCCCCCCCCCCCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 --------------------------------------------------------------------------------
-604 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
-610 pt/round: ugh(P2) "Good for a while."
+479 pt/round: Team 5 Ben & Dylan(P3) "Our Strategy"
+499 pt/round: ugh(P2) "Good for a while."
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCcbbbb
-CCCCCCCCCCCCCCCCCCCCBbbbb
+CCCCCCCCCCCCCCCCCCCCccccbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCBBBBbbbbbbbbbbbbbbbbbb
 
 --------------------------------------------------------------------------------

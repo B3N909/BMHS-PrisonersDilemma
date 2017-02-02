@@ -6,6 +6,8 @@
 #     move: A function that returns 'c' or 'b'
 ####
 
+import random
+
 print ("Starting...")
 
 team_name = 'Team 5 Ben & Dylan' # Only 10 chars displayed.
@@ -24,14 +26,12 @@ weightAlternate = 0
 iterationOpposite = 0
 weightOpposite = 0
 
+iterationAlwaysBetray = 0
+weightAlwaysBetray = 0
 
-afterBettrayString = ""
-iterationAfterBettray = 0
-iteraionAfterBettrayNum = 0
-boolBettrayTest = True
-weightAfterBettray = 0
-
-
+iterationBetrayAfter = 0
+iterationBetrayAfterStart = 0
+weightBettrayAfter = 0
 
 def lastMove(history):
     return history[-1:]
@@ -58,54 +58,62 @@ def move(my_history, their_history, my_score, their_score):
     global iterationOpposite
     global weightOpposite
     
-    global afterBettrayString
-    global iterationAfterBettray
-    global iteraionAfterBettrayNum
-    global boolBettrayTest
-    global weightAfterBettray
+    global iterationAlwaysBetray
+    global weightAlwaysBetray
+    
+    global iterationBetrayAfter
+    global iterationBetrayAfterStart
+    global weightBettrayAfter
     
     if(their_history != ""):
         # Opposite
         if(theirLast == opposite(myLast)):
             iterationOpposite += 1.0
-        weightOpposite = int((iterationOpposite / iterations) * 100);
+        weightOpposite = int((iterationOpposite / iterations) * 100)
                 
         #Always Collude
         if(theirLast == "c"):
             iterationAlwaysCollude += 1.0
-        weightAlwaysCollude = int((iterationAlwaysCollude / iterations) * 100);
+        weightAlwaysCollude = int((iterationAlwaysCollude / iterations) * 100)
+        
+        #AlwaysBetray
+        if(theirLast == "b"):
+            iterationAlwaysBetray += 1.0
+        weightAlwaysBetray = int((iterationAlwaysBetray / iterations) * 100)
         
         #Alternate
         if(their_history[len(their_history) - 2] == opposite(theirLast)):
             iterationAlternate += 1.0
-        weightAlternate = int((iterationAlternate / iterations) * 100);
+        weightAlternate = int((iterationAlternate / iterations) * 100)
         
-        #Pattern after Betray
-        if(boolBettrayTest):
-            if(afterBettrayString == ""):
-                afterBettrayString = "-"
-            elif(afterBettrayString == "-"):
-                afterBettrayString = str(theirLast)
-            else:
-                iterationAfterBettray += 1
-                if(theirLast != afterBettrayString):
-                    boolBettrayTest = False
-                    weightAfterBettray = int((iterationAfterBettray / iterations) * 100);
+        #Betray After Point
+        if(theirLast == "b"):
+            if(iterationBetrayAfterStart != 0):
+                iterationBetrayAfterStart = len(theirHistroy)
+            iterationBetrayAfter += 1.0
+        weightBettrayAfter = int((iterationBetrayAfter / iterations) * 100)
         
-        print my_history + " | " + their_history + " - " + str(weightAfterBettray) + "% (" + str(iterations) + ")"
         
-        if((theirLast == "b" or iteraionAfterBettrayNum != 0) and (afterBettrayString != "" or afterBettrayString != "-") and iteraionAfterBettrayNum != iterationAfterBettray):
-            iteraionAfterBettrayNum += 1
-            if(iteraionAfterBettrayNum == 1):
-                print ("I was betrayed! Starting cycle pattern to counter...")
-            else:
-                print ("Countered betray pattern")
-            return opposite(afterBettrayString)
-        elif(weightAlternate > weightAlwaysCollude & weightAlternate >= weightOpposite):
-            print ("Always Alternating")
-            return "c"
+        print my_history + " | " + their_history + " - " + str(weightBettrayAfter) + "% (" + str(iterationBetrayAfter) + ")"
+        
+        pick = random.randint(1, 100)
+        
+        if( weightBettrayAfter > 2):
+            return "b"
         else:
-            return theirLast
+            if(random.randint(1, 100) < 2):
+                return "b"
+            else:
+                if( pick < weightAlternate ):
+                    return "c"
+                elif( pick < weightAlwaysCollude ):
+                    return "c"
+                elif( pick < weightAlwaysBetray ):
+                    return "b"
+                elif( pick < weightOpposite ):
+                    return opposite(myLast)
+                else:
+                    return theirLast
         
     else:
         #Reset Variables
@@ -118,14 +126,14 @@ def move(my_history, their_history, my_score, their_score):
         iterationOpposite = 0
         weightOpposite = 0
         
-        afterBettrayString = ""
-        iterationAfterBettray = 0
-        iteraionAfterBettrayNum = 0
-        weightAfterBettray = 0
+        iterationAlwaysBetray = 0
+        weightAlwaysBetray = 0
         
-        boolBettrayTest = True
+        iterationBetrayAfter = 0
+        iterationBetrayAfterStart = 0
+        weightBettrayAfter = 0
         
-        return "b"
+        return "c"
     
 
 myHistory = "cccccccc"
