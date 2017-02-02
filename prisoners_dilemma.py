@@ -35,11 +35,11 @@ import os.path
 from imp import reload
 import example0, example1
 import example5, example6, example2
-import team5
+import team5, team0
 betray = example1
 collude = example0
 
-modules = [example5, example6, example2, team5]
+modules = [example5, example6, team0, team5]
 for module in modules:
     reload(module)
     print ('reloaded',module)
@@ -129,6 +129,8 @@ def play_round(player1, player2, score1, score2, moves1, moves2):
     # Keep 2R > T + S to be an Iterative Prisoner's Dilemma
     
     ERROR = -250
+    
+    print (player1.team_name + " (" + str(score1) + ") vs. " + player2.team_name + " (" + str(score2) + ")")
     
     # Get the two players' actions and remember them.
     action1 = player1.move(moves1, moves2, score1, score2)

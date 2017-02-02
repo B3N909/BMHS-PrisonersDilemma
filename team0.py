@@ -6,9 +6,9 @@
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = 'The name the team gives to itself' # Only 10 chars displayed.
-strategy_name = 'The name the team gives to this strategy'
-strategy_description = 'How does this strategy decide?'
+team_name = 'ugh' # Only 10 chars displayed.
+strategy_name = 'Good for a while.'
+strategy_description = 'Collude until turn 100, unless betrayed.'
     
 def move(my_history, their_history, my_score, their_score):
     ''' Arguments accepted: my_history, their_history are strings.
@@ -25,44 +25,39 @@ def move(my_history, their_history, my_score, their_score):
     
     # Analyze my_history and their_history and/or my_score and their_score.
     # Decide whether to return 'c' or 'b'.
-    
-    return 'c'
-
-    
-def test_move(my_history, their_history, my_score, their_score, result):
-    '''calls move(my_history, their_history, my_score, their_score)
-    from this module. Prints error if return value != result.
-    Returns True or False, dpending on whether result was as expected.
-    '''
-    real_result = move(my_history, their_history, my_score, their_score)
-    if real_result == result:
-        return True
+    if their_history == '':
+            return 'c'
+    theirs = []                                 # empty list to turn string their_history into list
+    mine = []                                   # empty list to turn string my_history into a list
+    for value in their_history:                # for each value in original string their_history
+        theirs.append(value)                    # add each character in their_history string to theirs list 
+    for value in my_history:                   # for each value in original my_history string
+        mine.append(value)                      # add each character in my_history string to mine list
+    betrayenemy = 0                             # define betrayenemy as a variable to keep track of enemy betrayals
+    colludeenemy = 0                            # define colludeenemy as a variable to keep track of enemy colludes
+    betrayme = 0                                # define betrayme as a variable to keep track of my betrayals
+    colludeme = 0                               # define colludeme as a variable to keep track of my colludes
+    justbetray = False                          # a variable to keep track is someone else's program is returning something other than 'b' or 'c'
+    for value in theirs:                        # for every value in theirs list
+        if value == 'b' or value == 'c':        # if the value is 'b' or 'c'
+            if value == 'b':                    # if the value is 'b'
+                betrayenemy += 1                # add 1 to betrayenemy
+            if value == 'c':                    # if value is 'c'
+                colludeenemy += 1                # add 1 to colludeenemy
+        else:                                   # else (value is not 'b' or 'c')
+            justbetray = True                    # set justbetray to True 
+    for value in mine:                           # for each value in list mine
+        if value == 'b':                        # if value is 'b'
+            betrayme += 1                        # add 1 to betrayme
+        if value == 'c':                        # if value is 'c'
+            colludeme += 1                       # add 1 to collude me
+    if justbetray == True:                      # if justbetray is now True
+        return 'b'                               # return 'b' as a move
+    elif theirs[-1] == 'b':                     # else if the latest index of theirs is 'b'
+        return 'b'                              # return 'b'
+    elif betrayme >= 1:
+        return 'b'
+    elif betrayenemy == 0 and len(theirs) != 100:    # else if they have never betrayed and if it is not the 25th round
+        return 'c'                                  # return 'c' as move
     else:
-        print("move(" +
-            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
-                       str(my_score), str(their_score)])+
-            ") returned " + "'" + real_result + "'" +
-            " and should have returned '" + result + "'")
-        return False
-
-if __name__ == '__main__':
-     
-    # Test 1: Betray on first move.
-    if test_move(my_history='',
-              their_history='', 
-              my_score=0,
-              their_score=0,
-              result='b'):
-         print 'Test passed'
-     # Test 2: Continue betraying if they collude despite being betrayed.
-    test_move(my_history='bbb',
-              their_history='ccc', 
-              # Note the scores are for testing move().
-              # The history and scores don't need to match unless
-              # that is relevant to the test of move(). Here,
-              # the simulation (if working correctly) would have awarded 
-              # 300 to me and -750 to them. This test will pass if and only if
-              # move('bbb', 'ccc', 0, 0) returns 'b'.
-              my_score=0, 
-              their_score=0,
-              result='b')             
+        return 'b'
