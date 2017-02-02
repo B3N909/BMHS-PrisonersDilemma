@@ -96,24 +96,19 @@ def move(my_history, their_history, my_score, their_score):
         
         print my_history + " | " + their_history + " - " + str(weightBettrayAfter) + "% (" + str(iterationBetrayAfter) + ")"
         
-        pick = random.randint(1, 100)
         
         if( weightBettrayAfter > 2):
             return "b"
         else:
-            if(random.randint(1, 100) < 2):
+            if( weightAlternate > weightAlwaysCollude and weightAlternate > weightAlwaysBetray and weightAlternate >= weightOpposite ):
+                return "c"
+            elif( weightAlwaysCollude > weightAlwaysBetray and weightAlwaysCollude > weightOpposite):
+                return "c"
+            elif( weightAlwaysBetray > weightOpposite):
                 return "b"
             else:
-                if( pick < weightAlternate ):
-                    return "c"
-                elif( pick < weightAlwaysCollude ):
-                    return "c"
-                elif( pick < weightAlwaysBetray ):
-                    return "b"
-                elif( pick < weightOpposite ):
-                    return opposite(myLast)
-                else:
-                    return theirLast
+                return opposite(myLast)
+            return theirLast
         
     else:
         #Reset Variables
